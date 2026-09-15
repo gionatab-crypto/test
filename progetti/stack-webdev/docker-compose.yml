@@ -1,0 +1,62 @@
+services:
+  hostdb-web-webdev:
+    image: mariadb:11
+    container_name: hostdb-web-webdev
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${WP_DB_NAME}
+      MYSQL_USER: ${WP_DB_USER}
+      MYSQL_PASSWORD: ${WP_DB_PASSWORD}
+    volumes:
+      - mariadb-webdev-data:/var/lib/mysql
+    networks:
+      - webdev
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: hostdb-web-webdev
+      PMA_USER: ${WP_DB_USER}
+      PMA_PASSWORD: ${WP_DB_PASSWORD}
+    ports:
+      - "8093:80"
+    networks:
+      - webdev
+
+  wordpress-esempio:
+    image: wordpress:latest
+    container_name: wordpress-esempio
+    restart: unless-stopped
+    environment:
+      WORDPRESS_DB_HOST: hostdb-web-webdev
+      WORDPRESS_DB_USER: ${WP_DB_USER}
+      WORDPRESS_DB_PASSWORD: ${WP_DB_PASSWORD}
+      WORDPRESS_DB_NAME: ${WP_DB_NAME}
+    volumes:
+      - /data/compose/webdev-manual/wordpress-esempio-data:/var/www/html
+    ports:
+      - "8092:80"
+    networks:
+      - webdev
+
+  webdev:
+    image: php:8.3-apache
+    container_name: webdev
+    restart: unless-stopped
+    command: bash -c "a2enmod vhost_alias rewrite && apache2-foreground"
+    volumes:
+      - /data/compose/webdev-manual/apache-config/vhost.conf:/etc/apache2/sites-enabled/000-default.conf:ro
+      - /data/compose/webdev-manual/sites:/var/www/sites
+    ports:
+      - "8091:80"
+    networks:
+      - webdev
+
+networks:
+  webdev:
+
+volumes:
+  mariadb-webdev-data:
