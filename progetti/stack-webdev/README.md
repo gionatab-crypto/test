@@ -3,13 +3,23 @@
 Stack Docker per ospitare siti web, basato sul riferimento che hai passato
 ma adattato alle tue risposte:
 
-- Tipo progetto: WordPress come esempio, più un ambiente Apache/PHP condiviso
-  e riusabile per altri progetti futuri (uno per cartella sotto `sites/`).
+- Progetto: **chiaradiluna-webdev** (WordPress), più un ambiente Apache/PHP
+  condiviso e riusabile per altri progetti futuri (uno per cartella sotto
+  `sites/`).
 - Uso: **sito reale**, non solo laboratorio → sotto trovi una checklist di
   sicurezza da seguire prima di andare online.
 - Immagine "webdev": PHP + Apache **standard** (nessuna estensione o tool
   particolare richiesto), quindi niente build di un'immagine custom.
-- Porte: confermate 8091 (webdev), 8092 (WordPress esempio), 8093 (phpMyAdmin).
+- Porte: confermate 8091 (webdev), 8092 (chiaradiluna-webdev), 8093 (phpMyAdmin).
+- Davanti c'è un reverse proxy già presente in Portainer: **Nginx Proxy
+  Manager (NPM) + CrowdSec**.
+
+> **Nota sui limiti di questa sessione:** io (Claude) lavoro qui dentro solo
+> su questo repository Git, in un ambiente isolato. Non ho accesso al tuo
+> Portainer, al tuo browser o al tuo server reale — non posso entrare io
+> stesso in NPM a configurare i Proxy Host. Ti preparo i file e le
+> istruzioni passo-passo, i click nell'interfaccia web li fai tu (o me li
+> descrivi e ti guido).
 
 ## Cosa ho cambiato rispetto al tuo riferimento e perché
 
@@ -31,10 +41,9 @@ ma adattato alle tue risposte:
    Git) le vedrebbe. Questo vale sempre, ma soprattutto ora che mi hai detto
    che il sito sarà reale.
 
-3. **Rinominato `chiaradiluna` in `wordpress-esempio`.**
-   Nel tuo riferimento c'era già un progetto WordPress con nome specifico.
-   L'ho reso generico: quando saprai il nome vero del progetto, rinomini
-   `container_name`, il percorso del volume e (se vuoi) il servizio stesso.
+3. **Progetto WordPress rinominato `chiaradiluna-webdev`** (nome reale che mi
+   hai dato): `container_name`, il percorso del volume dei file WordPress
+   (`chiaradiluna-webdev-data`) e le porte sono coerenti con questo nome.
 
 4. **`vhost.conf` per l'ambiente condiviso `webdev`** (vedi sotto): l'ho
    scritto io perché nel tuo riferimento veniva solo montato ma non fornito.
@@ -90,8 +99,44 @@ oppure dirmelo e aggiorniamo lo stack con uno script di init dedicato.
    - `WP_DB_PASSWORD`
 6. **Deploy the stack**.
 7. Prima del primo avvio, crea sul server le cartelle usate dai volumi:
-   `/data/compose/webdev-manual/{apache-config,sites,wordpress-esempio-data}`
+   `/data/compose/webdev-manual/{apache-config,sites,chiaradiluna-webdev-data}`
    e copia dentro `apache-config/` il file `vhost.conf` di questa cartella.
+
+## Collegare Nginx Proxy Manager (NPM) + CrowdSec
+
+Hai già NPM in Portainer, quindi questo stack **non deve gestire HTTPS da
+solo**: resta in HTTP sulle porte 8091-8093, e ci pensa NPM davanti.
+
+Per ogni servizio raggiungibile da internet, in NPM vai su
+**Proxy Hosts → Add Proxy Host** e crea una voce così:
+
+| Servizio | Domain Names | Forward Hostname/IP | Forward Port |
+|---|---|---|---|
+| WordPress chiaradiluna | `chiaradiluna.tuodominio.it` | IP del server Docker (o `localhost` se NPM gira sullo stesso host) | `8092` |
+| Ambiente condiviso webdev | `progetto1.tuodominio.it`, `progetto2.tuodominio.it`, ... (uno per ogni cartella in `sites/`) | IP del server Docker | `8091` |
+| phpMyAdmin (sconsigliato pubblico, vedi checklist) | eventualmente solo su rete interna/VPN | IP del server Docker | `8093` |
+
+Cose a cui stare attento in NPM per questo stack:
+
+- **Websockets support**: non serve (né WordPress né i siti PHP semplici lo
+  richiedono), lascialo pure disattivato.
+- **SSL**: attiva "Request a new SSL Certificate" (Let's Encrypt) e "Force
+  SSL" per ogni Proxy Host che va online davvero.
+- **CrowdSec**: se l'hai collegato come bouncer su NPM (plugin/proxy),
+  funziona automaticamente su tutto il traffico che passa dai Proxy Host
+  sopra: non serve configurazione aggiuntiva in questo stack.
+- L'header `Host` deve arrivare intatto al container `webdev` perché
+  `vhost.conf` lo usa per scegliere la cartella giusta sotto `sites/`: NPM
+  lo fa di default, non c'è nulla da cambiare.
+
+**Nota su un'opzione più sicura (facoltativa, non necessaria ora):** invece
+di raggiungere i container tramite `IP-del-server:porta`, NPM potrebbe
+collegarsi direttamente ai container sulla stessa rete Docker (senza
+pubblicare le porte 8091-8093 sull'host). Serve però il nome della rete
+Docker usata dallo stack di NPM in Portainer (Portainer → Stacks → stack di
+NPM → Containers → Networks). Se me lo dai, aggiorno lo stack per collegarlo
+a quella rete come `external: true` e togliamo le porte pubbliche — utile
+soprattutto per phpMyAdmin.
 
 ## Checklist sicurezza (sito reale, non laboratorio)
 
@@ -107,7 +152,7 @@ oppure dirmelo e aggiorniamo lo stack con uno script di init dedicato.
       gestisce HTTPS e poi inoltra il traffico a questi container. Dimmi se
       ne hai già uno sul server e ti aiuto a collegarlo.
 - [ ] **Backup**: i dati veri stanno nei volumi (`mariadb-webdev-data`) e
-      nelle cartelle montate (`wordpress-esempio-data`, `sites/`). Vanno
+      nelle cartelle montate (`chiaradiluna-webdev-data`, `sites/`). Vanno
       backuppati regolarmente: è un esercizio che possiamo fare insieme
       quando arriviamo alla parte di automazioni/script.
 - [ ] **Aggiornamenti immagini**: `mariadb:11`, `wordpress:latest`,
@@ -116,6 +161,7 @@ oppure dirmelo e aggiorniamo lo stack con uno script di init dedicato.
 
 ## Prossimo passo
 
-Fammi sapere il nome vero del primo progetto (o se vuoi tenere
-"wordpress-esempio" per ora) e se hai già un reverse proxy/dominio: aggiorno
-lo stack di conseguenza.
+Quando crei i Proxy Host in NPM, dimmi i domini reali che stai usando (es.
+`chiaradiluna.tuodominio.it`) così aggiorno gli esempi. Se vuoi anche la
+versione "solo rete interna" (niente porte pubbliche), dammi il nome della
+rete Docker di NPM e la preparo.

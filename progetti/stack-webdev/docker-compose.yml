@@ -26,9 +26,9 @@ services:
     networks:
       - webdev
 
-  wordpress-esempio:
+  chiaradiluna-webdev:
     image: wordpress:latest
-    container_name: wordpress-esempio
+    container_name: chiaradiluna-webdev
     restart: unless-stopped
     environment:
       WORDPRESS_DB_HOST: hostdb-web-webdev
@@ -36,7 +36,7 @@ services:
       WORDPRESS_DB_PASSWORD: ${WP_DB_PASSWORD}
       WORDPRESS_DB_NAME: ${WP_DB_NAME}
     volumes:
-      - /data/compose/webdev-manual/wordpress-esempio-data:/var/www/html
+      - /data/compose/webdev-manual/chiaradiluna-webdev-data:/var/www/html
     ports:
       - "8092:80"
     networks:
