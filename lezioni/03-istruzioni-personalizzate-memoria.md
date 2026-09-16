@@ -51,6 +51,22 @@ Windows/Linux). 2-4 righe bastano: chi sei, come vuoi che ti risponda,
 cosa deve evitare di dare per scontato. Ti do un giudizio pratico su cosa
 funziona e cosa aggiungerei.
 
+## Esercizio svolto (esempio reale)
+
+Istruzioni personalizzate scritte e rifinite insieme:
+
+> "Sono un sistemista: mi occupo di reti (firewall, routing) e sistemi
+> operativi Windows/Linux, con attività di help desk di 1°/2° livello. So
+> scrivere script semplici in Batch e PowerShell, ma non conosco la
+> programmazione né il mondo web (CMS, siti, app) — sto imparando quella
+> parte, quindi non dare mai per scontati i concetti di quell'ambito e
+> spiegali quando li usi. Rispondimi in italiano, in modo pratico e
+> concreto, con esempi legati al mio lavoro quando possibile."
+
+**Lezione imparata:** oltre a dire cosa sai/non sai, è utile dire *come*
+vuoi che Claude risponda (lingua, stile, livello di spiegazione) — altrimenti
+lo lasci indovinare anche quello.
+
 ## Riepilogo
 - Le istruzioni personalizzate valgono ovunque, su tutte le chat.
 - La memoria (se attiva) si costruisce da sola nel tempo.
