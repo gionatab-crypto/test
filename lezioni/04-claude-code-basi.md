@@ -57,6 +57,16 @@ un collega:
 Dopo la tua richiesta, la eseguo davvero e ti spiego quale strumento ho
 usato (e perché quello e non un altro).
 
+## Esercizio svolto (esempio reale)
+
+Richiesta: "Mostrami l'elenco dei file nella cartella lezioni".
+
+Strumento usato: **Glob**, con pattern `lezioni/*.md` → ha restituito i 4
+file di lezione esistenti, ordinati. Glob è lo strumento dedicato a
+"trova file per nome/pattern" — preferito a un comando shell generico
+(`ls`/`dir`) quando la richiesta è solo di elencare o cercare file, mentre
+Bash resta riservato ad azioni più "attive" (eseguire comandi, script, git).
+
 ## Riepilogo
 - Claude Code lavora dentro una cartella reale, con strumenti veri (leggere,
   modificare, eseguire comandi, git).
