@@ -6,6 +6,7 @@
 | 2 | Chat vs Progetti vs Claude Code | 2026-09-16 | Completata |
 | 3 | Istruzioni personalizzate e memoria | 2026-09-16 | Completata |
 | 4 | Claude Code: cos'è, come funziona, primi comandi | 2026-09-16 | Completata |
+| 5 | Esplorare un progetto/repository con Claude | 2026-09-17 | In corso |
 
 Note lezione 1: esercizio svolto sul controllo spazio disco (server misti
 Windows/Linux, soglia 5 GB, report CSV). Vedi
@@ -23,4 +24,4 @@ sul mondo CMS). Versione rifinita in
 Note lezione 4: esercizio svolto chiedendo l'elenco dei file in `lezioni/`
 tramite lo strumento Glob (pattern `lezioni/*.md`).
 
-Prossima lezione: **5 — Esplorare un progetto/repository con Claude**
+Prossima lezione: **5 — Esplorare un progetto/repository con Claude** (in corso)
